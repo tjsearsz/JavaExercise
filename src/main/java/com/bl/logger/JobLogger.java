@@ -158,8 +158,7 @@ public class JobLogger {
 								char typeOfMessage = 0;
 								if (logMessage)
 									typeOfMessage = 1;								
-								else
-								if (logError)
+								else if (logError)
 									typeOfMessage = 2;								
 								else
 									typeOfMessage = 3;
@@ -185,24 +184,22 @@ public class JobLogger {
 					}
 					
 					//String used to log a message into the console or file
-					String logMessage = null;
+					String logMessageText = null;
+					Level MessageLevel = null;
 					
 					if (logError) {
-						logMessage ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+						logMessageText ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+						MessageLevel = Level.SEVERE;
 					}
-		
-					if (logWarning) {
-						logMessage = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+					else if (logWarning) {
+						logMessageText = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+						MessageLevel = Level.WARNING;
 					}
-		
-					if (logMessage) {
-						logMessage = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-					}						
-					
-					if(logToConsole) {
-						logger.addHandler(ch);
-						logger.log(Level.INFO, messageText);
-					}
+					else
+					{
+						logMessageText = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+						MessageLevel = Level.INFO;
+					}				
 					
 					//If we want to long the error in a file
 					if (logToFile)
@@ -223,6 +220,8 @@ public class JobLogger {
 					if (logToConsole)
 					{
 						ConsoleHandler ch = new ConsoleHandler();
+						logger.addHandler(ch);
+						logger.log(Level.INFO, messageText);
 					}
 					
 				}
