@@ -1,5 +1,6 @@
 package com.bl.logger;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -148,8 +149,12 @@ public class JobLogger {
 					{
 						logMessageText = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
 						MessageLevel = Level.INFO;
-					}				
+					}
 					
+					if(logToFile)
+						LogIntoFile(messageText);
+					if(logToConsole)
+						LogIntoConsole(messageText);
 				}
 				else
 					throw new LoggerException("Error or Warning or Message must be specified");
@@ -169,15 +174,28 @@ public class JobLogger {
 	 */
 	private static void LogIntoFile(String messageText) throws LoggerException
 	{
-		File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
-		if (!logFile.exists()) {
-			logFile.createNewFile();
+		//File path
+		File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
+		try
+		{
+			//Creating the file if it doesn't exist
+			if (!logFile.exists()) {
+				logFile.createNewFile();
+			}
+			
+			//Creating the handler and logging into the file
+			FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+			logger.addHandler(fh);
+			logger.log(Level.INFO, messageText);
 		}
-		
-		FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
-		
-		logger.addHandler(fh);
-		logger.log(Level.INFO, messageText);
+		catch(IOException e)
+		{
+			throw new LoggerException("An error has occurred trying to create, open or write in a file", e);
+		}
+		catch(SecurityException e)
+		{
+			throw new LoggerException("A security error has occurred with the file", e);
+		}	
 	}
 	
 	/**
