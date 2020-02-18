@@ -30,6 +30,17 @@ public class JobLogger {
 	private Map dbParams;
 	private Logger logger;
 
+	/**
+	 * Constructor of the class that receives all the needed elements to specify
+	 * what and where will be logged
+	 * @param logToFileParam Indicates whether we will log into a file
+	 * @param logToConsoleParam Indicates whether we will log into the console
+	 * @param logToDatabaseParam Indicates whether we will log into the database
+	 * @param logMessageParam Indicates whether we will log an informative message
+	 * @param logWarningParam Indicates whether we will log a warning message
+	 * @param logErrorParam Indicates whether we will log an error message
+	 * @param dbParamsMap Indicates the parameters needed to log into the database
+	 */
 	public JobLogger(boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
 			boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
 		logger = Logger.getLogger("MyLog");  
