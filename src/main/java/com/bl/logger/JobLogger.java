@@ -2,6 +2,8 @@ package com.bl.logger;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.util.Date;
@@ -142,14 +144,44 @@ public class JobLogger {
 								 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
 						{
 							
-							connectionProps.put("user", dbParams.get("userName"));
-							connectionProps.put("password", dbParams.get("password"));
-				
-							connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-									+ ":" + dbParams.get("portNumber") + "/", connectionProps);							
-				
-							Statement stmt = connection.createStatement();
-				
+							try
+							{
+								//Placing the credentials for the connection
+								connectionProps.put("user", dbParams.get("userName"));
+								connectionProps.put("password", dbParams.get("password"));
+					
+								//Creating a connection with the credentials given
+								connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
+										+ ":" + dbParams.get("portNumber") + "/", connectionProps);
+								
+								int t = 0;
+								if (message && logMessage) {
+									t = 1;
+								}
+
+								if (error && logError) {
+									t = 2;
+								}
+
+								if (warning && logWarning) {
+									t = 3;
+								}
+
+					
+								Statement stmt = connection.createStatement();
+
+							}
+							catch (SQLTimeoutException e)
+							{
+								//If we get a timeout when trying to establish a DB connection
+								throw new LoggerException("Timeout occurred when attempting to establish a DB connection", e);
+							}
+							catch (SQLException e)
+							{
+								//If an error on the DB happens we will catch it
+								throw new LoggerException("An error on the database has occurred", e);
+							}
+											
 							String l = null;
 							File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
 							if (!logFile.exists()) {
