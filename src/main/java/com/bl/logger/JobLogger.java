@@ -129,11 +129,11 @@ public class JobLogger {
 				{
 					//If we have all the required parameters for the database, we can open a connection
 					if (dbParams != null && 
-							(dbParams.containsKey("userName") && 
-							 dbParams.containsKey("password") &&
-							 dbParams.containsKey("dbms")     &&
-							dbParams.containsKey("serverName")&&
-							 dbParams.containsKey("portNumber")))
+							((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
+							 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
+							 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
+							 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
+							 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
 					{
 						Connection connection = null;
 						Properties connectionProps = new Properties();
