@@ -166,8 +166,7 @@ public class JobLogger {
 					
 								//Executing DB operation
 								Statement stmt = connection.createStatement();								
-								stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");
-								
+								stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");								
 
 							}
 							catch (SQLTimeoutException e)
@@ -179,15 +178,8 @@ public class JobLogger {
 							{
 								//If an error on the DB happens we will catch it
 								throw new LoggerException("An error on the database has occurred", e);
-							}
-											
-							String l = null;
-							File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
-							if (!logFile.exists()) {
-								logFile.createNewFile();
-							}
+							}						
 							
-							FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
 							ConsoleHandler ch = new ConsoleHandler();
 							
 							if (error && logError) {
@@ -200,12 +192,7 @@ public class JobLogger {
 				
 							if (message && logMessage) {
 								l = l + "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-							}
-							
-							if(logToFile) {
-								logger.addHandler(fh);
-								logger.log(Level.INFO, messageText);
-							}
+							}						
 							
 							if(logToConsole) {
 								logger.addHandler(ch);
@@ -214,7 +201,26 @@ public class JobLogger {
 						}
 						else
 							throw new LoggerException("Not all the required database parameters have been specified");					
-					}					
+					}
+					
+					//String used to log a message into the console or file
+					String logMessage = null;
+					
+					//If we want to long the error in a file
+					if (logToFile)
+					{
+						
+						File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
+						if (!logFile.exists()) {
+							logFile.createNewFile();
+						}
+						
+						FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+						
+						logger.addHandler(fh);
+						logger.log(Level.INFO, messageText);
+						
+					}
 					
 				}
 				else
