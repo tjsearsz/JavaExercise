@@ -30,8 +30,7 @@ public class JobLogger {
 	private static boolean logMessage;
 	private static boolean logWarning;
 	private static boolean logError;
-	private static boolean logToDatabase;
-	private static boolean initialized;
+	private static boolean logToDatabase;	
 	private static Map dbParams;
 	private static Logger logger;
 	private static String finalMessage;
