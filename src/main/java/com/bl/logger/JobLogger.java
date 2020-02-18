@@ -20,15 +20,15 @@ import java.util.logging.Logger;
  */
 public class JobLogger {
 	
-	private static boolean logToFile;
-	private static boolean logToConsole;
-	private static boolean logMessage;
-	private static boolean logWarning;
-	private static boolean logError;
-	private static boolean logToDatabase;
+	private boolean logToFile;
+	private boolean logToConsole;
+	private boolean logMessage;
+	private boolean logWarning;
+	private boolean logError;
+	private boolean logToDatabase;
 	private boolean initialized;
-	private static Map dbParams;
-	private static Logger logger;
+	private Map dbParams;
+	private Logger logger;
 
 	public JobLogger(boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
 			boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
