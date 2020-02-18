@@ -146,20 +146,7 @@ public class JobLogger {
 							connectionProps.put("password", dbParams.get("password"));
 				
 							connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-									+ ":" + dbParams.get("portNumber") + "/", connectionProps);
-				
-							int t = 0;
-							if (message && logMessage) {
-								t = 1;
-							}
-				
-							if (error && logError) {
-								t = 2;
-							}
-				
-							if (warning && logWarning) {
-								t = 3;
-							}
+									+ ":" + dbParams.get("portNumber") + "/", connectionProps);							
 				
 							Statement stmt = connection.createStatement();
 				
