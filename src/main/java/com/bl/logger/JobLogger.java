@@ -178,26 +178,7 @@ public class JobLogger {
 							{
 								//If an error on the DB happens we will catch it
 								throw new LoggerException("An error on the database has occurred", e);
-							}						
-							
-							ConsoleHandler ch = new ConsoleHandler();
-							
-							if (error && logError) {
-								l = l + "error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-							}
-				
-							if (warning && logWarning) {
-								l = l + "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-							}
-				
-							if (message && logMessage) {
-								l = l + "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-							}						
-							
-							if(logToConsole) {
-								logger.addHandler(ch);
-								logger.log(Level.INFO, messageText);
-							}				
+							}										
 						}
 						else
 							throw new LoggerException("Not all the required database parameters have been specified");					
@@ -205,6 +186,23 @@ public class JobLogger {
 					
 					//String used to log a message into the console or file
 					String logMessage = null;
+					
+					if (logError) {
+						logMessage ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+					}
+		
+					if (logWarning) {
+						logMessage = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+					}
+		
+					if (logMessage) {
+						logMessage = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+					}						
+					
+					if(logToConsole) {
+						logger.addHandler(ch);
+						logger.log(Level.INFO, messageText);
+					}
 					
 					//If we want to long the error in a file
 					if (logToFile)
@@ -222,6 +220,11 @@ public class JobLogger {
 						
 					}
 					
+					if (logToConsole)
+					{
+						ConsoleHandler ch = new ConsoleHandler();
+					}
+					
 				}
 				else
 					throw new LoggerException("Error or Warning or Message must be specified");
@@ -231,6 +234,11 @@ public class JobLogger {
 		}
 		else
 			throw new LoggerException("The Message cannot be empty");
+		
+	}
+	
+	private void LogIntoDataBase() throws LoggerException
+	{
 		
 	}
 }
