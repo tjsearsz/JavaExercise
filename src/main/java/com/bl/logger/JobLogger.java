@@ -124,30 +124,36 @@ public class JobLogger {
 	public static void LogMessage(String messageText) throws LoggerException {
 		
 		//if its a valid message (not null, and not only empty spaces) we will log
-		if (messageText == null || messageText.trim().length() == 0) 
-		{		
-			//If we have at least one destination of the log message
-			if (!logToConsole && !logToFile && !logToDatabase) 
-			{			
-				//If we have specified at least one type for the message
-				if (!logError && !logMessage && !logWarning)  
-				{
-					//Inserting into the place where its needed
-					if(logToDatabase)
-						LogIntoDataBase(messageText);					
-					if(logToFile)
-						LogIntoFile(messageText);
-					if(logToConsole)
-						LogIntoConsole(messageText);
+		if (messageText != null) 
+		{	
+			//if the message is not only white space
+			if (messageText.trim().length() != 0)
+			{
+				//If we have at least one destination of the log message
+				if (logToConsole || logToFile || logToDatabase) 
+				{			
+					//If we have specified at least one type for the message
+					if (logError || logMessage || logWarning)  
+					{
+						//Inserting into the place where its needed
+						if(logToDatabase)
+							LogIntoDataBase(messageText);					
+						if(logToFile)
+							LogIntoFile(messageText);
+						if(logToConsole)
+							LogIntoConsole(messageText);
+					}
+					else
+						throw new LoggerException("Error or Warning or Message must be specified");
 				}
 				else
-					throw new LoggerException("Error or Warning or Message must be specified");
+					throw new LoggerException("Invalid configuration");
 			}
 			else
-				throw new LoggerException("Invalid configuration");
+				throw new LoggerException("The message cannot contain only white space");
 		}
 		else
-			throw new LoggerException("The Message cannot be empty");
+			throw new LoggerException("The Message cannot be null");
 		
 	}
 	
