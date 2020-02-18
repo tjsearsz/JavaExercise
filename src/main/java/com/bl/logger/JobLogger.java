@@ -111,7 +111,11 @@ public class JobLogger {
 		this.dbParams = dbParams;
 	}
 
-
+	/**
+	 * This method Logs a message on the required place
+	 * @param messageText The text of the message we will log
+	 * @throws LoggerException The exception that has been thrown during the process
+	 */
 	public static void LogMessage(String messageText) throws LoggerException {
 		messageText.trim();
 		if (messageText == null || messageText.length() == 0) {
