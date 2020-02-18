@@ -12,7 +12,12 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * This class is intended to log (Informative, warning or error) messages
+ * in the console, File or Database
+ * @author Belatrix
+ *
+ */
 public class JobLogger {
 	
 	private static boolean logToFile;
