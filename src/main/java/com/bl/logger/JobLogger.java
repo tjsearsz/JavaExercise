@@ -205,9 +205,17 @@ public class JobLogger {
 	 */
 	private static void LogIntoConsole(String messageText) throws LoggerException
 	{
-		ConsoleHandler ch = new ConsoleHandler();
-		logger.addHandler(ch);
-		logger.log(Level.INFO, messageText);
+		//Performing the process of loggin into the console
+		try
+		{
+			ConsoleHandler ch = new ConsoleHandler();
+			logger.addHandler(ch);
+			logger.log(Level.INFO, messageText);
+		}
+		catch(SecurityException e)
+		{
+			throw new LoggerException("There was an error trying to access to the console", e);
+		}		
 	}
 	
 	/**
