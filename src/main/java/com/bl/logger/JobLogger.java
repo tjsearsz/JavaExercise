@@ -154,23 +154,19 @@ public class JobLogger {
 								connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
 										+ ":" + dbParams.get("portNumber") + "/", connectionProps);
 								
-								int t = 0;
-								if (message && logMessage) {
-									t = 1;
-								}
-
-								if (error && logError) {
-									t = 2;
-								}
-
-								if (warning && logWarning) {
-									t = 3;
-								}
-
+								//Depending on the type of the message we will insert in database, it will have a code
+								char typeOfMessage = 0;
+								if (logMessage)
+									typeOfMessage = 1;								
+								else
+								if (logError)
+									typeOfMessage = 2;								
+								else
+									typeOfMessage = 3;
 					
 								//Executing DB operation
 								Statement stmt = connection.createStatement();								
-								stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + String.valueOf(t) + ")");
+								stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");
 								
 
 							}
