@@ -25,88 +25,18 @@ import com.bl.exception.LoggerException;
  */
 public class JobLogger {
 	
-	private static boolean logToFile;
-	private static boolean logToConsole;
-	private static boolean logMessage;
-	private static boolean logWarning;
-	private static boolean logError;
-	private static boolean logToDatabase;	
 	private static Map dbParams;
 	private static Logger logger;
 	private static String finalMessage;
 	private static Level levelOfMessage;
 
 	/**
-	 * Constructor of the class that receives all the needed elements to specify
-	 * what and where will be logged
-	 * @param logToFileParam Indicates whether we will log in a file
-	 * @param logToConsoleParam Indicates whether we will log in the console
-	 * @param logToDatabaseParam Indicates whether we will log in the database
-	 * @param logMessageParam Indicates whether we will log an informative message
-	 * @param logWarningParam Indicates whether we will log a warning message
-	 * @param logErrorParam Indicates whether we will log an error message
-	 * @param dbParamsMap Indicates the parameters needed to log into the database
+	 * Empty Constructor of the class	 
 	 */
-	public JobLogger(boolean logToFileParam, boolean logToConsoleParam, boolean logToDatabaseParam,
-			boolean logMessageParam, boolean logWarningParam, boolean logErrorParam, Map dbParamsMap) {
-		logger = Logger.getLogger("MyLog");  
-		logError = logErrorParam;
-		logMessage = logMessageParam;
-		logWarning = logWarningParam;
-		logToDatabase = logToDatabaseParam;
-		logToFile = logToFileParam;
-		logToConsole = logToConsoleParam;
-		dbParams = dbParamsMap;
-	}	
-	
-	/**
-	 * Setter for the Log to file flag
-	 * @param logToFile Flag to indicate whether we will log in a file
-	 */
-	public void setLogToFile(boolean logToFile) {
-		this.logToFile = logToFile;
-	}
-
-	/**
-	 * Setter for the Log to Console flag
-	 * @param logToConsole Flag to indicate whether we will log in a console
-	 */
-	public void setLogToConsole(boolean logToConsole) {
-		this.logToConsole = logToConsole;
-	}
-
-	/**
-	 * Setter for the message of informative type
-	 * @param logMessage the flag to indicate whether the message is informative
-	 */
-	public void setLogMessage(boolean logMessage) {
-		this.logMessage = logMessage;
-	}
-
-	/**
-	 * Setter for the message of warning type
-	 * @param logMessage the flag to indicate whether the message is a warning
-	 */
-	public void setLogWarning(boolean logWarning) {
-		this.logWarning = logWarning;
-	}
-
-	/**
-	 * Setter for the message of error type
-	 * @param logMessage the flag to indicate whether the message is an error
-	 */
-	public void setLogError(boolean logError) {
-		this.logError = logError;
+	public JobLogger() {
+		logger = Logger.getLogger("MyLog");		
 	}
 	
-	/**
-	 * Setter for the Log to Database flag
-	 * @param logToDatabase The flag to indicate whether we will log in the DataBase
-	 */
-	public void setLogToDatabase(boolean logToDatabase) {
-		this.logToDatabase = logToDatabase;
-	}
-
 	/**
 	 * Setter for the DataBase parameters needed to log into the database
 	 * @param dbParams The parameters required to access and open database connection
@@ -120,7 +50,9 @@ public class JobLogger {
 	 * @param messageText The text of the message we will log
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
-	public static void LogMessage(String messageText) throws LoggerException {
+	public static void LogMessage(String messageText, 
+			boolean logToFile, boolean logToConsole, boolean logToDatabase,
+			boolean logWarning, boolean logError, boolean  logMessage) throws LoggerException {
 		
 		//if its a valid message (not null, and not only empty spaces) we will log
 		if (messageText != null) 
@@ -136,11 +68,11 @@ public class JobLogger {
 					{
 						//Inserting into the place where its needed
 						if(logToDatabase)
-							LogIntoDataBase(messageText);					
+							LogIntoDataBase(messageText, logError, logMessage);					
 						if(logToFile)
-							LogIntoFile(messageText);
+							LogIntoFile(messageText, logError, logWarning);
 						if(logToConsole)
-							LogIntoConsole(messageText);
+							LogIntoConsole(messageText, logError, logWarning);
 					}
 					else
 						throw new LoggerException("Error or Warning or Message must be specified");
@@ -157,10 +89,12 @@ public class JobLogger {
 	}
 	
 	/**
-	 * Method to set the type of the message and the final message (message + date)
-	 * @param messageText
+	 * The method that holds the logic to prepare the final message (message + time) and the type
+	 * @param messageText The message we want to add
+	 * @param logError The flag that indicates whether the message will be saved as error
+	 * @param logWarning The flag that indicates whether the message will be saved as a warning
 	 */
-	private static void SetMessageAndLevel(String messageText)
+	private static void SetMessageAndLevel(String messageText, boolean logError, boolean logWarning)
 	{
 		if (logError) {
 			finalMessage ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
@@ -182,7 +116,7 @@ public class JobLogger {
 	 * @param messageText The message we want to add
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
-	private static void LogIntoFile(String messageText) throws LoggerException
+	private static void LogIntoFile(String messageText, boolean logError, boolean logWarning) throws LoggerException
 	{
 		//File path
 		File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
@@ -197,7 +131,7 @@ public class JobLogger {
 			logger.addHandler(fh);
 			
 			//Setting the level/final message and logging
-			SetMessageAndLevel(messageText);			
+			SetMessageAndLevel(messageText, logError, logWarning);			
 			logger.log(levelOfMessage, finalMessage);
 			
 			//Closing the Handler
@@ -218,7 +152,7 @@ public class JobLogger {
 	 * @param messageText The message we want to add
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
-	private static void LogIntoConsole(String messageText) throws LoggerException
+	private static void LogIntoConsole(String messageText, boolean logError, boolean logWarning) throws LoggerException
 	{
 		//Performing the process of logging into the console
 		try
@@ -228,21 +162,24 @@ public class JobLogger {
 			logger.addHandler(ch);
 			
 			//Setting the level/final message and logging
-			SetMessageAndLevel(messageText);			
+			SetMessageAndLevel(messageText, logError, logWarning);			
 			logger.log(levelOfMessage, finalMessage);
 		}
 		catch(SecurityException e)
 		{
 			throw new LoggerException("There was an error trying to access to the console", e);
 		}		
-	}
+	}	
 	
 	/**
 	 * Method that holds the logic to add a message into the database
 	 * @param messageText the message we want to add
+	 * @param logError The flag that indicates whether the message will be saved as error
+	 * @param logMessage The flag that indicates whether the message will be saved as informative
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
-	private static void LogIntoDataBase(String messageText) throws LoggerException
+	private static void LogIntoDataBase(String messageText, boolean logError, boolean logMessage) 
+			throws LoggerException
 	{		
 			Connection connection = null;
 			Properties connectionProps = new Properties();
