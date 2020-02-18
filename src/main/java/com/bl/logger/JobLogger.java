@@ -12,6 +12,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bl.exception.LoggerException;
+
 /**
  * This class is intended to log (Informative, warning or error) messages
  * in the console, File or Database
@@ -110,7 +112,7 @@ public class JobLogger {
 	}
 
 
-	public static void LogMessage(String messageText) throws Exception {
+	public static void LogMessage(String messageText) throws LoggerException {
 		messageText.trim();
 		if (messageText == null || messageText.length() == 0) {
 			return;
