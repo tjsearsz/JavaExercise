@@ -22,15 +22,15 @@ import com.bl.exception.LoggerException;
  */
 public class JobLogger {
 	
-	private boolean logToFile;
-	private boolean logToConsole;
-	private boolean logMessage;
-	private boolean logWarning;
-	private boolean logError;
-	private boolean logToDatabase;
-	private boolean initialized;
-	private Map dbParams;
-	private Logger logger;
+	private static boolean logToFile;
+	private static boolean logToConsole;
+	private static boolean logMessage;
+	private static boolean logWarning;
+	private static boolean logError;
+	private static boolean logToDatabase;
+	private static boolean initialized;
+	private static Map dbParams;
+	private static Logger logger;
 
 	/**
 	 * Constructor of the class that receives all the needed elements to specify
