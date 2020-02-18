@@ -179,23 +179,25 @@ public class JobLogger {
 		try
 		{
 			//Creating the file if it doesn't exist
-			if (!logFile.exists()) {
+			if (!logFile.exists())
 				logFile.createNewFile();
-			}
 			
 			//Creating the handler and logging into the file
 			FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
 			logger.addHandler(fh);
 			logger.log(Level.INFO, messageText);
+			
+			//Closing the Handler
+			fh.close();			
 		}
 		catch(IOException e)
 		{
-			throw new LoggerException("An error has occurred trying to create, open or write in a file", e);
+			throw new LoggerException("An error has occurred trying to create, open a file", e);
 		}
 		catch(SecurityException e)
 		{
 			throw new LoggerException("A security error has occurred with the file", e);
-		}	
+		}
 	}
 	
 	/**
