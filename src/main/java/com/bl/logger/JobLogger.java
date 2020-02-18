@@ -127,74 +127,81 @@ public class JobLogger {
 				//If we have specified at least one type for the message
 				if (!logError && !logMessage && !logWarning)  
 				{
-					//If we have all the required parameters for the database, we can open a connection
-					if (dbParams != null && 
-							((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
-							 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
-							 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
-							 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
-							 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
+					//only if we need to save a message on the database, we will open DB connection
+					if(logToDatabase)
 					{
 						Connection connection = null;
 						Properties connectionProps = new Properties();
-						connectionProps.put("user", dbParams.get("userName"));
-						connectionProps.put("password", dbParams.get("password"));
-			
-						connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-								+ ":" + dbParams.get("portNumber") + "/", connectionProps);
-			
-						int t = 0;
-						if (message && logMessage) {
-							t = 1;
-						}
-			
-						if (error && logError) {
-							t = 2;
-						}
-			
-						if (warning && logWarning) {
-							t = 3;
-						}
-			
-						Statement stmt = connection.createStatement();
-			
-						String l = null;
-						File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
-						if (!logFile.exists()) {
-							logFile.createNewFile();
-						}
 						
-						FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
-						ConsoleHandler ch = new ConsoleHandler();
-						
-						if (error && logError) {
-							l = l + "error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+						//If we have all the required parameters for the database, we can open a connection
+						if (dbParams != null && 
+								((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
+								 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
+								 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
+								 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
+								 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
+						{
+							
+							connectionProps.put("user", dbParams.get("userName"));
+							connectionProps.put("password", dbParams.get("password"));
+				
+							connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
+									+ ":" + dbParams.get("portNumber") + "/", connectionProps);
+				
+							int t = 0;
+							if (message && logMessage) {
+								t = 1;
+							}
+				
+							if (error && logError) {
+								t = 2;
+							}
+				
+							if (warning && logWarning) {
+								t = 3;
+							}
+				
+							Statement stmt = connection.createStatement();
+				
+							String l = null;
+							File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
+							if (!logFile.exists()) {
+								logFile.createNewFile();
+							}
+							
+							FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+							ConsoleHandler ch = new ConsoleHandler();
+							
+							if (error && logError) {
+								l = l + "error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+							}
+				
+							if (warning && logWarning) {
+								l = l + "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+							}
+				
+							if (message && logMessage) {
+								l = l + "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+							}
+							
+							if(logToFile) {
+								logger.addHandler(fh);
+								logger.log(Level.INFO, messageText);
+							}
+							
+							if(logToConsole) {
+								logger.addHandler(ch);
+								logger.log(Level.INFO, messageText);
+							}
+							
+							if(logToDatabase) {
+								stmt.executeUpdate("insert into Log_Values('" + message + "', " + String.valueOf(t) + ")");
+							}
 						}
-			
-						if (warning && logWarning) {
-							l = l + "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-						}
-			
-						if (message && logMessage) {
-							l = l + "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-						}
-						
-						if(logToFile) {
-							logger.addHandler(fh);
-							logger.log(Level.INFO, messageText);
-						}
-						
-						if(logToConsole) {
-							logger.addHandler(ch);
-							logger.log(Level.INFO, messageText);
-						}
-						
-						if(logToDatabase) {
-							stmt.executeUpdate("insert into Log_Values('" + message + "', " + String.valueOf(t) + ")");
-						}
-					}
-					else
-						throw new LoggerException("Not all the required database parameters have been specified");
+						else
+							throw new LoggerException("Not all the required database parameters have been specified");					
+					}					
+					
 				}
 				else
 					throw new LoggerException("Error or Warning or Message must be specified");
