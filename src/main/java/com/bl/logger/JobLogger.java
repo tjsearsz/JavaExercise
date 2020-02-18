@@ -168,7 +168,10 @@ public class JobLogger {
 								}
 
 					
-								Statement stmt = connection.createStatement();
+								//Executing DB operation
+								Statement stmt = connection.createStatement();								
+								stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + String.valueOf(t) + ")");
+								
 
 							}
 							catch (SQLTimeoutException e)
@@ -211,11 +214,7 @@ public class JobLogger {
 							if(logToConsole) {
 								logger.addHandler(ch);
 								logger.log(Level.INFO, messageText);
-							}
-							
-							if(logToDatabase) {
-								stmt.executeUpdate("insert into Log_Values('" + message + "', " + String.valueOf(t) + ")");
-							}
+							}				
 						}
 						else
 							throw new LoggerException("Not all the required database parameters have been specified");					
