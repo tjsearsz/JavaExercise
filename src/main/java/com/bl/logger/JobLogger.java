@@ -42,7 +42,7 @@ public class JobLogger {
 		dbParams = dbParamsMap;
 	}
 
-	public static void LogMessage(String messageText, boolean message, boolean warning, boolean error) throws Exception {
+	public static void LogMessage(String messageText) throws Exception {
 		messageText.trim();
 		if (messageText == null || messageText.length() == 0) {
 			return;
