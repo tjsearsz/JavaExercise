@@ -129,59 +129,8 @@ public class JobLogger {
 				//If we have specified at least one type for the message
 				if (!logError && !logMessage && !logWarning)  
 				{
-					//only if we need to save a message on the database, we will open DB connection
 					if(logToDatabase)
-					{
-						Connection connection = null;
-						Properties connectionProps = new Properties();
-						
-						//If we have all the required parameters for the database, we can open a connection
-						if (dbParams != null && 
-								((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
-								 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
-								 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
-								 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
-								 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
-						{
-							
-							try
-							{
-								//Placing the credentials for the connection
-								connectionProps.put("user", dbParams.get("userName"));
-								connectionProps.put("password", dbParams.get("password"));
-					
-								//Creating a connection with the credentials given
-								connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-										+ ":" + dbParams.get("portNumber") + "/", connectionProps);
-								
-								//Depending on the type of the message we will insert in database, it will have a code
-								char typeOfMessage = 0;
-								if (logMessage)
-									typeOfMessage = 1;								
-								else if (logError)
-									typeOfMessage = 2;								
-								else
-									typeOfMessage = 3;
-					
-								//Executing DB operation
-								Statement stmt = connection.createStatement();								
-								stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");								
-
-							}
-							catch (SQLTimeoutException e)
-							{
-								//If we get a timeout when trying to establish a DB connection
-								throw new LoggerException("Timeout occurred when attempting to establish a DB connection", e);
-							}
-							catch (SQLException e)
-							{
-								//If an error on the DB happens we will catch it
-								throw new LoggerException("An error on the database has occurred", e);
-							}										
-						}
-						else
-							throw new LoggerException("Not all the required database parameters have been specified");					
-					}
+						LogIntoDataBase(messageText);
 					
 					//String used to log a message into the console or file
 					String logMessageText = null;
@@ -201,29 +150,6 @@ public class JobLogger {
 						MessageLevel = Level.INFO;
 					}				
 					
-					//If we want to long the error in a file
-					if (logToFile)
-					{
-						
-						File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
-						if (!logFile.exists()) {
-							logFile.createNewFile();
-						}
-						
-						FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
-						
-						logger.addHandler(fh);
-						logger.log(Level.INFO, messageText);
-						
-					}
-					
-					if (logToConsole)
-					{
-						ConsoleHandler ch = new ConsoleHandler();
-						logger.addHandler(ch);
-						logger.log(Level.INFO, messageText);
-					}
-					
 				}
 				else
 					throw new LoggerException("Error or Warning or Message must be specified");
@@ -236,8 +162,91 @@ public class JobLogger {
 		
 	}
 	
-	private void LogIntoDataBase() throws LoggerException
+	/**
+	 * Method that holds the logic to log into a file
+	 * @param messageText The message we want to add
+	 * @throws LoggerException The exception that has been thrown during the process of logging
+	 */
+	private static void LogIntoFile(String messageText) throws LoggerException
 	{
+		File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
+		if (!logFile.exists()) {
+			logFile.createNewFile();
+		}
 		
+		FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+		
+		logger.addHandler(fh);
+		logger.log(Level.INFO, messageText);
+	}
+	
+	/**
+	 * Method that holds the logic to log into the console
+	 * @param messageText The message we want to add
+	 * @throws LoggerException The exception that has been thrown during the process of logging
+	 */
+	private static void LogIntoConsole(String messageText) throws LoggerException
+	{
+		ConsoleHandler ch = new ConsoleHandler();
+		logger.addHandler(ch);
+		logger.log(Level.INFO, messageText);
+	}
+	
+	/**
+	 * Method that holds the logic to add a message into the database
+	 * @param messageText the message we want to add
+	 * @throws LoggerException The exception that has been thrown during the process of logging
+	 */
+	private static void LogIntoDataBase(String messageText) throws LoggerException
+	{		
+			Connection connection = null;
+			Properties connectionProps = new Properties();
+			
+			//If we have all the required parameters for the database, we can open a connection
+			if (dbParams != null && 
+					((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
+					 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
+					 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
+					 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
+					 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
+			{
+				
+				try
+				{
+					//Placing the credentials for the connection
+					connectionProps.put("user", dbParams.get("userName"));
+					connectionProps.put("password", dbParams.get("password"));
+		
+					//Creating a connection with the credentials given
+					connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
+							+ ":" + dbParams.get("portNumber") + "/", connectionProps);
+					
+					//Depending on the type of the message we will insert in database, it will have a code
+					char typeOfMessage = 0;
+					if (logMessage)
+						typeOfMessage = 1;								
+					else if (logError)
+						typeOfMessage = 2;								
+					else
+						typeOfMessage = 3;
+		
+					//Executing DB operation
+					Statement stmt = connection.createStatement();								
+					stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");								
+
+				}
+				catch (SQLTimeoutException e)
+				{
+					//If we get a timeout when trying to establish a DB connection
+					throw new LoggerException("Timeout occurred when attempting to establish a DB connection", e);
+				}
+				catch (SQLException e)
+				{
+					//If an error on the DB happens we will catch it
+					throw new LoggerException("An error on the database has occurred", e);
+				}										
+			}
+			else
+				throw new LoggerException("Not all the required database parameters have been specified");
 	}
 }
