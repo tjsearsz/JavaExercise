@@ -33,9 +33,9 @@ public class JobLogger {
 	/**
 	 * Constructor of the class that receives all the needed elements to specify
 	 * what and where will be logged
-	 * @param logToFileParam Indicates whether we will log into a file
-	 * @param logToConsoleParam Indicates whether we will log into the console
-	 * @param logToDatabaseParam Indicates whether we will log into the database
+	 * @param logToFileParam Indicates whether we will log in a file
+	 * @param logToConsoleParam Indicates whether we will log in the console
+	 * @param logToDatabaseParam Indicates whether we will log in the database
 	 * @param logMessageParam Indicates whether we will log an informative message
 	 * @param logWarningParam Indicates whether we will log a warning message
 	 * @param logErrorParam Indicates whether we will log an error message
@@ -51,7 +51,64 @@ public class JobLogger {
 		logToFile = logToFileParam;
 		logToConsole = logToConsoleParam;
 		dbParams = dbParamsMap;
+	}	
+	
+	/**
+	 * Setter for the Log to file flag
+	 * @param logToFile Flag to indicate whether we will log in a file
+	 */
+	public void setLogToFile(boolean logToFile) {
+		this.logToFile = logToFile;
 	}
+
+	/**
+	 * Setter for the Log to Console flag
+	 * @param logToConsole Flag to indicate whether we will log in a console
+	 */
+	public void setLogToConsole(boolean logToConsole) {
+		this.logToConsole = logToConsole;
+	}
+
+	/**
+	 * Setter for the message of informative type
+	 * @param logMessage the flag to indicate whether the message is informative
+	 */
+	public void setLogMessage(boolean logMessage) {
+		this.logMessage = logMessage;
+	}
+
+	/**
+	 * Setter for the message of warning type
+	 * @param logMessage the flag to indicate whether the message is a warning
+	 */
+	public void setLogWarning(boolean logWarning) {
+		this.logWarning = logWarning;
+	}
+
+	/**
+	 * Setter for the message of error type
+	 * @param logMessage the flag to indicate whether the message is an error
+	 */
+	public void setLogError(boolean logError) {
+		this.logError = logError;
+	}
+	
+	/**
+	 * Setter for the Log to Database flag
+	 * @param logToDatabase The flag to indicate whether we will log in the DataBase
+	 */
+	public void setLogToDatabase(boolean logToDatabase) {
+		this.logToDatabase = logToDatabase;
+	}
+
+	/**
+	 * Setter for the DataBase parameters needed to log into the database
+	 * @param dbParams The parameters required to access and open database connection
+	 */
+	public void setDbParams(Map dbParams) {
+		this.dbParams = dbParams;
+	}
+
 
 	public static void LogMessage(String messageText) throws Exception {
 		messageText.trim();
