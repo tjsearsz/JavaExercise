@@ -34,6 +34,8 @@ public class JobLogger {
 	private static boolean initialized;
 	private static Map dbParams;
 	private static Logger logger;
+	private static String finalMessage;
+	private static Level levelOfMessage;
 
 	/**
 	 * Constructor of the class that receives all the needed elements to specify
@@ -130,27 +132,9 @@ public class JobLogger {
 				//If we have specified at least one type for the message
 				if (!logError && !logMessage && !logWarning)  
 				{
+					//Inserting into the place where its needed
 					if(logToDatabase)
-						LogIntoDataBase(messageText);
-					
-					//String used to log a message into the console or file
-					String logMessageText = null;
-					Level MessageLevel = null;
-					
-					if (logError) {
-						logMessageText ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-						MessageLevel = Level.SEVERE;
-					}
-					else if (logWarning) {
-						logMessageText = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-						MessageLevel = Level.WARNING;
-					}
-					else
-					{
-						logMessageText = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
-						MessageLevel = Level.INFO;
-					}
-					
+						LogIntoDataBase(messageText);					
 					if(logToFile)
 						LogIntoFile(messageText);
 					if(logToConsole)
@@ -168,6 +152,27 @@ public class JobLogger {
 	}
 	
 	/**
+	 * Method to set the type of the message and the final message (message + date)
+	 * @param messageText
+	 */
+	private static void SetMessageAndLevel(String messageText)
+	{
+		if (logError) {
+			finalMessage ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+			levelOfMessage = Level.SEVERE;
+		}
+		else if (logWarning) {
+			finalMessage = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+			levelOfMessage = Level.WARNING;
+		}
+		else
+		{
+			finalMessage = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+			levelOfMessage = Level.INFO;
+		}
+	}
+	
+	/**
 	 * Method that holds the logic to log into a file
 	 * @param messageText The message we want to add
 	 * @throws LoggerException The exception that has been thrown during the process of logging
@@ -180,12 +185,15 @@ public class JobLogger {
 		{
 			//Creating the file if it doesn't exist
 			if (!logFile.exists())
-				logFile.createNewFile();
+				logFile.createNewFile();			
 			
 			//Creating the handler and logging into the file
 			FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
 			logger.addHandler(fh);
-			logger.log(Level.INFO, messageText);
+			
+			//Setting the level/final message and logging
+			SetMessageAndLevel(messageText);			
+			logger.log(levelOfMessage, finalMessage);
 			
 			//Closing the Handler
 			fh.close();			
@@ -207,12 +215,16 @@ public class JobLogger {
 	 */
 	private static void LogIntoConsole(String messageText) throws LoggerException
 	{
-		//Performing the process of loggin into the console
+		//Performing the process of logging into the console
 		try
 		{
+			//Preparing the console handler
 			ConsoleHandler ch = new ConsoleHandler();
 			logger.addHandler(ch);
-			logger.log(Level.INFO, messageText);
+			
+			//Setting the level/final message and logging
+			SetMessageAndLevel(messageText);			
+			logger.log(levelOfMessage, finalMessage);
 		}
 		catch(SecurityException e)
 		{
