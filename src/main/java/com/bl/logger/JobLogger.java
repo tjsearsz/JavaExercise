@@ -25,7 +25,7 @@ import com.bl.exception.LoggerException;
  */
 public class JobLogger {
 	
-	private static Map dbParams;
+	//Atttributes of the class
 	private static Logger logger;
 	private static String finalMessage;
 	private static Level levelOfMessage;
@@ -33,16 +33,7 @@ public class JobLogger {
 	/**
 	 * Empty Constructor of the class	 
 	 */
-	public JobLogger() {
-		logger = Logger.getLogger("MyLog");		
-	}
-	
-	/**
-	 * Setter for the DataBase parameters needed to log into the database
-	 * @param dbParams The parameters required to access and open database connection
-	 */
-	public void setDbParams(Map dbParams) {
-		this.dbParams = dbParams;
+	public JobLogger() {				
 	}	
 	
 	/**
@@ -51,12 +42,13 @@ public class JobLogger {
 	 * @param logToFile Flag to indicate whether we will log into a file
 	 * @param logToConsole Flag to indicate whether we will log into the console
 	 * @param logToDatabase Flag to indicate whether we will log into a database
-	 * @param level Flag to indicate the type of the message 
+	 * @param level Flag to indicate the type of the message
+	 * @param dbParams the database parameters for inserting data (if apply)
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
 	public static void LogMessage(String messageText, 
 			boolean logToFile, boolean logToConsole, boolean logToDatabase,
-			LevelOfMessage level) throws LoggerException {
+			LevelOfMessage level, Map dbParams) throws LoggerException {		
 		
 		//if its a valid message (not null, and not only empty spaces) we will log
 		if (messageText != null) 
@@ -70,11 +62,14 @@ public class JobLogger {
 					//If we have specified at least one type for the message
 					if (level != null)  
 					{
+						//Getting the logger
+						logger = Logger.getLogger("MyLog");
+						
 						//Inserting into the place where its needed
 						if(logToDatabase)
-							LogIntoDataBase(messageText, level);					
+							LogIntoDataBase(messageText, level, dbParams);					
 						if(logToFile)
-							LogIntoFile(messageText, level);
+							LogIntoFile(messageText, level, dbParams);
 						if(logToConsole)
 							LogIntoConsole(messageText, level);
 					}
@@ -102,15 +97,15 @@ public class JobLogger {
 		switch(level)
 		{
 			case ERROR:
-				finalMessage ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+				finalMessage ="error " + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + messageText;
 				levelOfMessage = Level.SEVERE;
 				break;
 			case WARNING:
-				finalMessage = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+				finalMessage = "warning " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + messageText;
 				levelOfMessage = Level.WARNING;
 				break;
 			default:
-				finalMessage = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+				finalMessage = "message " +DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + messageText;
 				levelOfMessage = Level.INFO;
 				break;				
 		}
@@ -121,9 +116,10 @@ public class JobLogger {
 	 * Method that holds the logic to log into a file
 	 * @param messageText The message we want to add
 	 * @param level The type of the message we will output
+	 * @param dbParams the file parameters used to insert the message
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
-	private static void LogIntoFile(String messageText, LevelOfMessage level) throws LoggerException
+	private static void LogIntoFile(String messageText, LevelOfMessage level, Map dbParams) throws LoggerException
 	{
 		//File path
 		File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
@@ -172,6 +168,9 @@ public class JobLogger {
 			//Setting the level/final message and logging
 			SetMessageAndLevel(messageText, level);			
 			logger.log(levelOfMessage, finalMessage);
+			
+			//Removing the handler to avoid leak of memory
+			logger.removeHandler(ch);
 		}
 		catch(SecurityException e)
 		{
@@ -183,9 +182,10 @@ public class JobLogger {
 	 * Method that holds the logic to add a message into the database
 	 * @param messageText the message we want to add
 	 * @param level The type of message we will output	 
+	 * @param dbParams The database parameters used to insert the message
 	 * @throws LoggerException The exception that has been thrown during the process of logging
 	 */
-	private static void LogIntoDataBase(String messageText, LevelOfMessage level) 
+	private static void LogIntoDataBase(String messageText, LevelOfMessage level, Map dbParams) 
 			throws LoggerException
 	{		
 			Connection connection = null;

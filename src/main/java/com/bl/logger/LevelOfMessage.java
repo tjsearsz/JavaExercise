@@ -1,7 +1,7 @@
 package com.bl.logger;
 
 /**
- * Enum that allows to choose the type of message in the logger
+ * Enum that allows to choose the type of message for the logger
  * @author Teddy
  *
  */
