@@ -121,36 +121,46 @@ public class JobLogger {
 	 */
 	private static void LogIntoFile(String messageText, LevelOfMessage level, Map dbParams) throws LoggerException
 	{
-		//File path
-		File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
-		try
-		{
-			//Creating the file if it doesn't exist
-			if (!logFile.exists())
-				logFile.createNewFile();			
-			
-			//Creating the handler and logging into the file
-			FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
-			logger.addHandler(fh);
-			
-			//Setting the level/final message and logging
-			SetMessageAndLevel(messageText, level);			
-			logger.log(levelOfMessage, finalMessage);
-			
-			//Removing the handler to avoid leak of memory
-			logger.removeHandler(fh);
-			
-			//Closing the Handler
-			fh.close();			
+		//Validating the parameter is not null
+		if (dbParams != null)
+		{	
+			//Validating the file parameter has been specified
+			if (dbParams.containsKey("logFileFolder") && dbParams.get("logFileFolder") != null)
+			{
+				//File path
+				File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
+				try
+				{
+					//Creating the file if it doesn't exist
+					if (!logFile.exists())
+						logFile.createNewFile();			
+					
+					//Creating the handler and logging into the file
+					FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+					logger.addHandler(fh);
+					
+					//Setting the level/final message and logging
+					SetMessageAndLevel(messageText, level);			
+					logger.log(levelOfMessage, finalMessage);
+					
+					//Removing the handler to avoid leak of memory
+					logger.removeHandler(fh);
+					
+					//Closing the Handler
+					fh.close();			
+				}
+				catch(IOException e)
+				{
+					throw new LoggerException("An error has occurred trying to create, open a file", e);
+				}
+				catch(SecurityException e)
+				{
+					throw new LoggerException("A security error has occurred with the file", e);
+				}
+			}
 		}
-		catch(IOException e)
-		{
-			throw new LoggerException("An error has occurred trying to create, open a file", e);
-		}
-		catch(SecurityException e)
-		{
-			throw new LoggerException("A security error has occurred with the file", e);
-		}
+		else
+			throw new LoggerException("File parameter cannot be blank");
 	}
 	
 	/**
@@ -194,16 +204,18 @@ public class JobLogger {
 	private static void LogIntoDataBase(String messageText, LevelOfMessage level, Map dbParams) 
 			throws LoggerException
 	{		
+		//Validating database parameters doesn't come null
+		if (dbParams != null)
+		{
 			Connection connection = null;
 			Properties connectionProps = new Properties();
 			
 			//If we have all the required parameters for the database, we can open a connection
-			if (dbParams != null && 
-					((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
-					 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
-					 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
-					 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
-					 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null)))
+			if ((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
+				 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
+				 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
+				 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
+				 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null))
 			{
 				
 				try
@@ -249,5 +261,8 @@ public class JobLogger {
 			}
 			else
 				throw new LoggerException("Not all the required database parameters have been specified");
+		}
+		else
+			throw new LoggerException ("DataBase parameters cannot be blank");
 	}
 }
