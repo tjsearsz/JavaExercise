@@ -2,6 +2,8 @@ package com.bl.junit;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Assert;
@@ -128,23 +130,101 @@ public class LoggerTests {
 	 * @throws LoggerException
 	 */
 	@Test
+	@Ignore
 	public void LogAllTypesOfMessagesIntoTheFileTest() throws LoggerException
 	{
 		
+	}	
+	
+	
+	/**
+	 * Unit test to verify that the DbParam for logging in the file cannot be null
+	 */
+	@Test	
+	public void FileParameterCannotBeNullTest()
+	{		
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, null));
+		Assert.assertTrue(exception.getMessage().equals("File parameter cannot be blank"));				
+		
 	}
 	
+	/**
+	 * Unit test to verify that the File path must be specified
+	 */
+	@Test	
+	public void FileParameterMustBeSpecifiedTest()
+	{	
+		final Map<String, String> dbParams = new HashMap<String, String>();
+		
+		//Asserting logFileFolder value must exist
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams));
+		Assert.assertTrue(exception.getMessage().equals("File parameter has not been specified"));		
+		
+		//Asserting logFileFolder cannot be null
+		dbParams.put("logFileFolder", null);		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams));
+		Assert.assertTrue(exception.getMessage().equals("File parameter has not been specified"));
+	}
+	
+	/**
+	 * Unit test to verify that the FilePath cannot be anything except a variable that can be treated as a string
+	 */
+	@Test	
+	public void FileParameterCanOnlyBeStringRelatedTypeTest()
+	{	
+		//Trying to use a non string as a file path
+		final Map<String, Exception> dbParams1 = new HashMap<String, Exception>();
+		dbParams1.put("logFileFolder", new Exception());
+		
+		//Asserting that an error is thrown
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("File parameter must be a valid location"));
+		
+		//Trying to use a non string as a file path
+		final Map<String, Integer> dbParams2 = new HashMap<String, Integer>();
+		dbParams2.put("logFileFolder", 1);
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("File parameter must be a valid location"));
+		
+		//Trying to use a non string as a file path
+		final Map<String, Boolean> dbParams3 = new HashMap<String, Boolean>();
+		dbParams3.put("logFileFolder", true);
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("File parameter must be a valid location"));		
+		
+	}
+	
+	/**
+	 * Unit test to verify that a correct file path has been used (it exists)
+	 */
 	@Test
-	@Ignore
-	public void LogIntoConsoleAnErrorMessageTest()
+	public void ValidFilePathMustExistTest()
 	{
-		//PowerMockito.mockStatic(JobLogger.class);
-		//PowerMockito.doThrow(new LoggerException("There was an error trying to access to the console")).when(JobLogger.class);
-		//JobLogger.LogMessage("the message", false, true, false, true, false, false);
-		//LoggerException exception = Assert.assertThrows(LoggerException.class, () -> JobLogger.);		
-		//LoggerException exception2 = doThrow(new LoggerException("There was an error trying to access to the console")).
-		//when(JobLogger.class).LogMessage("this message", false, true, false, true, false, false);
+		//Trying to use a a non existant filepath
+		final Map<String, String> dbParams = new HashMap<String, String>();
+		dbParams.put("logFileFolder", "1294askefow");
 		
+		//Asserting that an error is thrown
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams));
+		Assert.assertTrue(exception.getMessage().equals("An error has occurred trying to create, open a file"));
 		
+		//Trying to use a a non existant filepath
+		dbParams.put("logFileFolder", "          ");
 		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams));
+		Assert.assertTrue(exception.getMessage().equals("An error has occurred trying to create, open a file"));
 	}
 }

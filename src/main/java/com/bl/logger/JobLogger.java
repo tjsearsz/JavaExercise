@@ -127,37 +127,45 @@ public class JobLogger {
 			//Validating the file parameter has been specified
 			if (dbParams.containsKey("logFileFolder") && dbParams.get("logFileFolder") != null)
 			{
-				//File path
-				File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
-				try
+				//Validating the value of the path can be casted to a string (cannot be a class or any other thing)
+				if (dbParams.get("logFileFolder") instanceof String)
 				{
-					//Creating the file if it doesn't exist
-					if (!logFile.exists())
-						logFile.createNewFile();			
-					
-					//Creating the handler and logging into the file
-					FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
-					logger.addHandler(fh);
-					
-					//Setting the level/final message and logging
-					SetMessageAndLevel(messageText, level);			
-					logger.log(levelOfMessage, finalMessage);
-					
-					//Removing the handler to avoid leak of memory
-					logger.removeHandler(fh);
-					
-					//Closing the Handler
-					fh.close();			
+					//File path
+					File logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");		
+					try
+					{
+						//Creating the file if it doesn't exist
+						if (!logFile.exists())
+							logFile.createNewFile();			
+						
+						//Creating the handler and logging into the file
+						FileHandler fh = new FileHandler(dbParams.get("logFileFolder") + "/logFile.txt");
+						logger.addHandler(fh);
+						
+						//Setting the level/final message and logging
+						SetMessageAndLevel(messageText, level);			
+						logger.log(levelOfMessage, finalMessage);
+						
+						//Removing the handler to avoid leak of memory
+						logger.removeHandler(fh);
+						
+						//Closing the Handler
+						fh.close();			
+					}
+					catch(IOException e)
+					{
+						throw new LoggerException("An error has occurred trying to create, open a file", e);
+					}
+					catch(SecurityException e)
+					{
+						throw new LoggerException("A security error has occurred with the file", e);
+					}
 				}
-				catch(IOException e)
-				{
-					throw new LoggerException("An error has occurred trying to create, open a file", e);
-				}
-				catch(SecurityException e)
-				{
-					throw new LoggerException("A security error has occurred with the file", e);
-				}
+				else
+					throw new LoggerException("File parameter must be a valid location");
 			}
+			else
+				throw new LoggerException("File parameter has not been specified");
 		}
 		else
 			throw new LoggerException("File parameter cannot be blank");
@@ -217,47 +225,50 @@ public class JobLogger {
 				 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
 				 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null))
 			{
-				
-				try
-				{
-					//Placing the credentials for the connection
-					connectionProps.put("user", dbParams.get("userName"));
-					connectionProps.put("password", dbParams.get("password"));
-		
-					//Creating a connection with the credentials given
-					connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-							+ ":" + dbParams.get("portNumber") + "/", connectionProps);
-					
-					//Depending on the type of the message we will insert in database, it will have a code
-					char typeOfMessage = 0;
-					switch(level)
+				//Validating the value of the path can be casted to a string (cannot be a class or any other thing)
+				if (dbParams.get("logFileFolder") instanceof String)
+				{					
+					try
 					{
-						case ERROR:
-							typeOfMessage = 2;
-							break;
-						case WARNING:
-							typeOfMessage = 3;
-							break;
-						default:
-							typeOfMessage = 1;
-							break;				
-					}					
-		
-					//Executing DB operation
-					Statement stmt = connection.createStatement();								
-					stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");								
-
+						//Placing the credentials for the connection
+						connectionProps.put("user", dbParams.get("userName"));
+						connectionProps.put("password", dbParams.get("password"));
+			
+						//Creating a connection with the credentials given
+						connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
+								+ ":" + dbParams.get("portNumber") + "/", connectionProps);
+						
+						//Depending on the type of the message we will insert in database, it will have a code
+						char typeOfMessage = 0;
+						switch(level)
+						{
+							case ERROR:
+								typeOfMessage = 2;
+								break;
+							case WARNING:
+								typeOfMessage = 3;
+								break;
+							default:
+								typeOfMessage = 1;
+								break;				
+						}					
+			
+						//Executing DB operation
+						Statement stmt = connection.createStatement();								
+						stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");								
+	
+					}
+					catch (SQLTimeoutException e)
+					{
+						//If we get a timeout when trying to establish a DB connection
+						throw new LoggerException("Timeout occurred when attempting to establish a DB connection", e);
+					}
+					catch (SQLException e)
+					{
+						//If an error on the DB happens we will catch it
+						throw new LoggerException("An error on the database has occurred", e);
+					}
 				}
-				catch (SQLTimeoutException e)
-				{
-					//If we get a timeout when trying to establish a DB connection
-					throw new LoggerException("Timeout occurred when attempting to establish a DB connection", e);
-				}
-				catch (SQLException e)
-				{
-					//If an error on the DB happens we will catch it
-					throw new LoggerException("An error on the database has occurred", e);
-				}										
 			}
 			else
 				throw new LoggerException("Not all the required database parameters have been specified");
