@@ -16,11 +16,9 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
-
 import com.bl.exception.LoggerException;
 import com.bl.logger.JobLogger;
 import com.bl.logger.LevelOfMessage;
@@ -30,8 +28,55 @@ import com.bl.logger.LevelOfMessage;
  * @author Teddy
  *
  */
-public class LoggerTests {		
+public class LoggerTests {	
 	
+	/**
+	 * Method to clean anything required
+	 * @throws SQLException 
+	 */
+	@BeforeClass
+	public static void SetUp() throws SQLException
+	{
+		//Deleting the file created in case we performed that test
+		File logFile = new File(System.getProperty("user.home") + "/logFile.txt");
+		if(logFile.exists())
+			logFile.delete();
+		
+		//Using real data base parameters
+		Map<String, String> dbParams = new HashMap<String, String>();
+		dbParams.put("userName", "username");
+		dbParams.put("password", "dragon");
+		dbParams.put("dbms", "h2");
+		dbParams.put("serverName", System.getProperty("user.home"));
+		
+		//Deleting all rows in case we have performed that test
+		Connection connection = null;
+		Properties connectionProps = new Properties();
+		
+		//Placing the credentials for the connection
+		connectionProps.put("user", dbParams.get("userName"));
+		connectionProps.put("password", dbParams.get("password"));
+		
+		//Creating a connection with the credentials given
+		connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + ":" + dbParams.get("serverName")
+				+ "/test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false", connectionProps);
+		
+		//Executing DB operation
+		Statement stmt = connection.createStatement();								
+		stmt.executeUpdate("DELETE FROM LOG");
+		connection.commit();
+		
+		//Closing connection and statement
+		connection.close();
+		stmt.close();
+		
+		//Placing values to null so they can be collected by JGC
+		logFile = null;
+		dbParams = null;
+		connection = null;
+		connectionProps = null;
+		stmt = null;
+	}
 	/**
 	 * Unit test to verify that a null message can't be added
 	 */
@@ -677,53 +722,5 @@ public class LoggerTests {
 				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams));
 		Assert.assertTrue(exception.getMessage().equals("Cannot create database connection or perform DML instruction, "
 				+ "Please check your Data Base parameters"));
-	}
-	
-	/**
-	 * Method to clean anything required
-	 * @throws SQLException 
-	 */
-	@AfterClass
-	public static void TearDown() throws SQLException
-	{
-		//Deleting the file created in case we performed that test
-		File logFile = new File(System.getProperty("user.home") + "/logFile.txt");
-		if(logFile.exists())
-			logFile.delete();
-		
-		//Using real data base parameters
-		Map<String, String> dbParams = new HashMap<String, String>();
-		dbParams.put("userName", "username");
-		dbParams.put("password", "dragon");
-		dbParams.put("dbms", "h2");
-		dbParams.put("serverName", System.getProperty("user.home"));
-		
-		//Deleting all rows in case we have performed that test
-		Connection connection = null;
-		Properties connectionProps = new Properties();
-		
-		//Placing the credentials for the connection
-		connectionProps.put("user", dbParams.get("userName"));
-		connectionProps.put("password", dbParams.get("password"));
-		
-		//Creating a connection with the credentials given
-		connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + ":" + dbParams.get("serverName")
-				+ "/test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false", connectionProps);
-		
-		//Executing DB operation
-		Statement stmt = connection.createStatement();								
-		stmt.executeUpdate("DELETE FROM LOG");
-		connection.commit();
-		
-		//Closing connection and statement
-		connection.close();
-		stmt.close();
-		
-		//Placing values to null so they can be collected by JGC
-		logFile = null;
-		dbParams = null;
-		connection = null;
-		connectionProps = null;
-		stmt = null;
 	}
 }
