@@ -1,14 +1,20 @@
 package com.bl.junit;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import com.bl.exception.LoggerException;
 import com.bl.logger.JobLogger;
 import com.bl.logger.LevelOfMessage;
@@ -226,5 +232,82 @@ public class LoggerTests {
 		exception = Assert.assertThrows(LoggerException.class, 
 				() -> JobLogger.LogMessage("This is a message", true, false, false, LevelOfMessage.WARNING, dbParams));
 		Assert.assertTrue(exception.getMessage().equals("An error has occurred trying to create, open a file"));
+	}
+	
+	/**
+	 * Unit test to verify that every type of message can be logged in the console 
+	 * @throws IOException 
+	 * @throws DocumentException 
+	 * @throws JDOMException 
+	 */
+	@Test
+	public void LogAllTypesOfMessagesIntoAfileTest() throws LoggerException, FileNotFoundException
+	{
+		//Using an existant filepath
+		final Map<String, String> dbParams = new HashMap<String, String>();
+		dbParams.put("logFileFolder", System.getProperty("user.home"));
+		
+		String auxText = null;		
+		
+		//Getting the logger
+		Logger logger = Logger.getLogger("MyLog");
+				
+		//Instantiating our custom handler
+		final LoggerTestsHandler handler = new LoggerTestsHandler();
+		
+		//Allowing handler to take all types of level
+		handler.setLevel(Level.ALL);		
+		
+		//With this we ensure that we don't take logs for other handlers already predefined (parents) 
+		logger.setUseParentHandlers(false);
+		
+		//Adding the handler in the logger
+		logger.addHandler(handler);
+		
+		/*******************************************Warning Message ****************************************/
+		//Executing the log process
+		JobLogger.LogMessage("This a warning message", true, false, false, LevelOfMessage.WARNING, dbParams);
+		
+		//Getting the file after creating it the first time
+		//logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
+			
+	/* Scanner scanner = new Scanner(logFile)		   ;		    while (scanner.hasNextLine()) {		        String line = scanner.nextLine()		       ;		        if(line.contains("WARNING")) { 		            System.out.println("ho hum, i found it on line m);		        }		    
+	    
+	    scanner.close();}*/
+		
+		//Asserting that the level recorded is the same
+		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.WARNING.intValue());
+		
+		//Asserting that the message is the same
+		auxText ="warning "+DateFormat.getDateInstance(DateFormat.LONG).format(new Date())+" "+"This a warning message";
+		Assert.assertTrue(handler.getMessageRecorded().equals(auxText));		
+		       
+		/****************************************************************************************************/
+		/********************************************Error Message ******************************************/
+		//Executing the log process
+		JobLogger.LogMessage("This an error message", true, false, false, LevelOfMessage.ERROR, dbParams);		
+		
+		//Asserting that the level recorded is the same
+		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.SEVERE.intValue());		
+		
+		//Asserting that the message is the same
+		auxText = "error "+DateFormat.getDateInstance(DateFormat.LONG).format(new Date())+" "+"This an error message";
+		Assert.assertTrue(handler.getMessageRecorded().equals(auxText));
+		
+		/****************************************************************************************************/
+		/*******************************************Information Message *************************************/
+		//Executing the log process
+		JobLogger.LogMessage("This an info message", true, false, false, LevelOfMessage.MESSAGE, dbParams);
+				
+		//Asserting that the level recorded is the same
+		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.INFO.intValue());		
+		
+		//Asserting that the message is the same
+		auxText ="message "+DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " +"This an info message";
+		Assert.assertTrue(handler.getMessageRecorded().equals(auxText));
+		/****************************************************************************************************/
+		
+		//Removing the handler to avoid memory leak
+		logger.removeHandler(handler);
 	}
 }
