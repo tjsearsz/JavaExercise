@@ -237,26 +237,30 @@ public class JobLogger {
 			
 						//Creating a connection with the credentials given
 						connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + ":" + dbParams.get("serverName")
-								+ "/test.db", connectionProps);
+								+ "/test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false", connectionProps);
 						
 						//Depending on the type of the message we will insert in database, it will have a code
-						char typeOfMessage = 0;
+						String typeOfMessage = "0";
 						switch(level)
 						{
 							case ERROR:
-								typeOfMessage = 2;
+								typeOfMessage = "2";
 								break;
 							case WARNING:
-								typeOfMessage = 3;
+								typeOfMessage = "3";
 								break;
 							default:
-								typeOfMessage = 1;
+								typeOfMessage = "1";
 								break;				
 						}					
 			
 						//Executing DB operation
 						Statement stmt = connection.createStatement();								
-						stmt.executeUpdate("insert into Log_Values('" + messageText + "', " + typeOfMessage + ")");								
+						stmt.executeUpdate("INSERT INTO LOG VALUES('" + messageText + "', '" + typeOfMessage + "')");
+						
+						//Closing connection and statement
+						connection.close();
+						stmt.close();
 	
 					}
 					catch (SQLTimeoutException e)
