@@ -137,6 +137,9 @@ public class JobLogger {
 			SetMessageAndLevel(messageText, level);			
 			logger.log(levelOfMessage, finalMessage);
 			
+			//Removing the handler to avoid leak of memory
+			logger.removeHandler(fh);
+			
 			//Closing the Handler
 			fh.close();			
 		}
@@ -171,6 +174,9 @@ public class JobLogger {
 			
 			//Removing the handler to avoid leak of memory
 			logger.removeHandler(ch);
+			
+			//Closing the handler
+			ch.close();
 		}
 		catch(SecurityException e)
 		{
