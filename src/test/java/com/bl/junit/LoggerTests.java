@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
@@ -543,10 +544,11 @@ public class LoggerTests {
 	
 	/**
 	 * Unit test to verify that every type of message can be logged into the DataBase
-	 * @throws LoggerException
+	 * @throws LoggerException LoggerException in case any special error appear
+	 * @throws SQLException exception when we are validating directly into the data
 	 */
 	@Test	
-	public void LogAllTypesOfMessagesIntoDataBaseTest() throws LoggerException
+	public void LogAllTypesOfMessagesIntoDataBaseTest() throws LoggerException, SQLException
 	{
 		//Using real data base parameters
 		final Map<String, String> dbParams = new HashMap<String, String>();
@@ -555,57 +557,78 @@ public class LoggerTests {
 		dbParams.put("dbms", "h2");
 		dbParams.put("serverName", System.getProperty("user.home"));		
 		
-		//Getting the logger
-		Logger logger = Logger.getLogger("MyLog");
-		
-		//Instantiating our custom handler
-		final LoggerTestsHandler handler = new LoggerTestsHandler();
-		
-		//Allowing handler to take all types of level
-		handler.setLevel(Level.ALL);		
-		
-		//With this we ensure that we don't take logs for other handlers already predefined (parents) 
-		logger.setUseParentHandlers(false);
-		
-		//Adding the handler in the logger
-		logger.addHandler(handler);
 		
 		/*******************************************Warning Message ****************************************/
 		//Executing the log process
 		JobLogger.LogMessage("This a warning message", false, false, true, LevelOfMessage.WARNING, dbParams);		
 		
 		//Asserting that the level recorded is the same
-		//Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.WARNING.intValue());
+		Assert.assertTrue(HasInformationBeenInsertedIntoDatabase(3));		
 		
-		//Asserting that the message is the same
-		//Assert.assertTrue(handler.getMessageRecorded().equals("warning " +
-		//DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + "This a warning message"));
 		/****************************************************************************************************/
 		/********************************************Error Message ******************************************/
 		//Executing the log process
 		JobLogger.LogMessage("This an error message", false, false, true, LevelOfMessage.ERROR, dbParams);		
 		
 		//Asserting that the level recorded is the same
-		//Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.SEVERE.intValue());		
+		Assert.assertTrue(HasInformationBeenInsertedIntoDatabase(2));
 		
-		//Asserting that the message is the same
-		//Assert.assertTrue(handler.getMessageRecorded().equals("error " + 
-		//DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + "This an error message"));
 		/****************************************************************************************************/
 		/*******************************************Information Message *************************************/
 		//Executing the log process
 		JobLogger.LogMessage("This an info message", false, false, true, LevelOfMessage.MESSAGE, dbParams);		
 		
 		//Asserting that the level recorded is the same
-		//Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.INFO.intValue());		
+		Assert.assertTrue(HasInformationBeenInsertedIntoDatabase(1));
 		
-		//Asserting that the message is the same
-		//Assert.assertTrue(handler.getMessageRecorded().equals("message " + 
-		//DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + "This an info message"));
-		/****************************************************************************************************/
+		/****************************************************************************************************/		
+	}
+	
+	/**
+	 * Private method to check if the message 
+	 * @param level the level of the message we need to assert
+	 * @return true if the information has been inserted successfully, otherwise false
+	 * @throws SQLException error in case we are querying he database
+	 */
+	private boolean HasInformationBeenInsertedIntoDatabase(int level) throws SQLException
+	{
+		//Using real data base parameters
+		Map<String, String> dbParams = new HashMap<String, String>();
+		dbParams.put("userName", "username");
+		dbParams.put("password", "dragon");
+		dbParams.put("dbms", "h2");
+		dbParams.put("serverName", System.getProperty("user.home"));
+		int amount = 0;
 		
-		//Removing the handler to avoid memory leak
-		logger.removeHandler(handler);
+		//Deleting all rows in case we have performed that test
+		Connection connection = null;
+		Properties connectionProps = new Properties();
+		
+		//Placing the credentials for the connection
+		connectionProps.put("user", dbParams.get("userName"));
+		connectionProps.put("password", dbParams.get("password"));
+		
+		//Creating a connection with the credentials given
+		connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + ":" + dbParams.get("serverName")
+				+ "/test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false", connectionProps);
+		
+		//Executing DB operation
+		Statement stmt = connection.createStatement();
+		String query = "SELECT COUNT(*) AMOUNT FROM LOG G WHERE G.LEVEL = '" + level + "'";
+		ResultSet resultSet = stmt.executeQuery(query);
+		
+		//extracting the message
+		while(resultSet.next())
+		{
+			amount = resultSet.getInt("AMOUNT");
+		}
+
+		//Closing connection and statement
+		connection.close();
+		stmt.close();
+		
+		//Returning the answer
+		return amount == 1 ? true:false;
 	}
 	
 	/**
@@ -642,7 +665,7 @@ public class LoggerTests {
 			logFile.delete();
 		
 		//Using real data base parameters
-		 Map<String, String> dbParams = new HashMap<String, String>();
+		Map<String, String> dbParams = new HashMap<String, String>();
 		dbParams.put("userName", "username");
 		dbParams.put("password", "dragon");
 		dbParams.put("dbms", "h2");
@@ -663,6 +686,7 @@ public class LoggerTests {
 		//Executing DB operation
 		Statement stmt = connection.createStatement();								
 		stmt.executeUpdate("DELETE FROM LOG");
+		connection.commit();
 		
 		//Closing connection and statement
 		connection.close();
