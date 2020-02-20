@@ -4,9 +4,14 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+/**
+ * Custom handler to capture all the logs we will perform in our unit tests
+ * @author Teddy
+ *
+ */
 public class LoggerTestsHandler extends Handler {
 
-	private Level lastLevel;
+	private Level levelRecorded;
 	private String messageRecorded;
 	
 	@Override
@@ -21,20 +26,33 @@ public class LoggerTestsHandler extends Handler {
 		
 	}
 
+	/**
+	 * Method where we capture the log message and level we are performing
+	 * @param record the specific log record we are manipulating
+	 */
 	@Override
-	public void publish(LogRecord arg0) {
-		this.lastLevel = arg0.getLevel();
-		this.messageRecorded = arg0.getMessage();
+	public void publish(LogRecord record) {
+		this.levelRecorded = record.getLevel();
+		this.messageRecorded = record.getMessage();
 		
 	}
 	
-	 public Level  getLastLevel() {
-	        return this.lastLevel;
-	    } 
-	 
-	 public String getMessageRecorded()
-	 {
-		 return this.messageRecorded;
-	 }
+	/**
+	 * Getter for the level we  have logged
+	 * @return the Level logged
+	 */
+	public Level  getLevelRecorded() 
+	{
+		return this.levelRecorded;
+	} 
+	
+	/**
+	 * Getter for the message we have logged
+	 * @return the message logged
+	 */
+	public String getMessageRecorded()
+	{
+		return this.messageRecorded;
+	}
 
 }

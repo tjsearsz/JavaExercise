@@ -65,7 +65,7 @@ public class JobLogger {
 						//Getting the logger
 						logger = Logger.getLogger("MyLog");
 						
-						//Inserting into the place where its needed
+						//Inserting into the place where it's needed
 						if(logToDatabase)
 							LogIntoDataBase(messageText, level, dbParams);					
 						if(logToFile)
