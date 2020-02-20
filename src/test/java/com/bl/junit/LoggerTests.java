@@ -611,6 +611,66 @@ public class LoggerTests {
 	}
 	
 	/**
+	 * Unit test to verify that every type of message can be logged into the DataBase
+	 * @throws LoggerException
+	 */
+	@Test
+	public void LogAllTypesOfMessagesIntoDataBaseTest() throws LoggerException
+	{
+		//Getting the logger
+		Logger logger = Logger.getLogger("MyLog");
+		
+		//Instantiating our custom handler
+		final LoggerTestsHandler handler = new LoggerTestsHandler();
+		
+		//Allowing handler to take all types of level
+		handler.setLevel(Level.ALL);		
+		
+		//With this we ensure that we don't take logs for other handlers already predefined (parents) 
+		logger.setUseParentHandlers(false);
+		
+		//Adding the handler in the logger
+		logger.addHandler(handler);
+		
+		/*******************************************Warning Message ****************************************/
+		//Executing the log process
+		JobLogger.LogMessage("This a warning message", false, false, true, LevelOfMessage.WARNING, null);		
+		
+		//Asserting that the level recorded is the same
+		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.WARNING.intValue());
+		
+		//Asserting that the message is the same
+		Assert.assertTrue(handler.getMessageRecorded().equals("warning " +
+		DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + "This a warning message"));
+		/****************************************************************************************************/
+		/********************************************Error Message ******************************************/
+		//Executing the log process
+		JobLogger.LogMessage("This an error message", false, false, true, LevelOfMessage.ERROR, null);		
+		
+		//Asserting that the level recorded is the same
+		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.SEVERE.intValue());		
+		
+		//Asserting that the message is the same
+		Assert.assertTrue(handler.getMessageRecorded().equals("error " + 
+		DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + "This an error message"));
+		/****************************************************************************************************/
+		/*******************************************Information Message *************************************/
+		//Executing the log process
+		JobLogger.LogMessage("This an info message", false, false, true, LevelOfMessage.MESSAGE, null);		
+		
+		//Asserting that the level recorded is the same
+		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.INFO.intValue());		
+		
+		//Asserting that the message is the same
+		Assert.assertTrue(handler.getMessageRecorded().equals("message " + 
+		DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " " + "This an info message"));
+		/****************************************************************************************************/
+		
+		//Removing the handler to avoid memory leak
+		logger.removeHandler(handler);
+	}
+	
+	/**
 	 * Method to clean anything required
 	 */
 	@AfterClass
