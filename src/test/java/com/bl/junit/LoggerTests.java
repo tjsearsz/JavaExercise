@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bl.exception.LoggerException;
@@ -263,12 +262,8 @@ public class LoggerTests {
 		//Executing the log process
 		JobLogger.LogMessage("This a warning message", true, false, false, LevelOfMessage.WARNING, dbParams);
 		
-		//Getting the file after creating it the first time
-		//logFile = new File(dbParams.get("logFileFolder") + "/logFile.txt");
-			
-	/* Scanner scanner = new Scanner(logFile)		   ;		    while (scanner.hasNextLine()) {		        String line = scanner.nextLine()		       ;		        if(line.contains("WARNING")) { 		            System.out.println("ho hum, i found it on line m);		        }		    
-	    
-	    scanner.close();}*/
+		//Checking the file for the information
+		Assert.assertTrue(HasInformationLoggedIntoTheFile(Level.WARNING));
 		
 		//Asserting that the level recorded is the same
 		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.WARNING.intValue());
@@ -280,7 +275,10 @@ public class LoggerTests {
 		/****************************************************************************************************/
 		/********************************************Error Message ******************************************/
 		//Executing the log process
-		JobLogger.LogMessage("This an error message", true, false, false, LevelOfMessage.ERROR, dbParams);		
+		JobLogger.LogMessage("This an error message", true, false, false, LevelOfMessage.ERROR, dbParams);
+		
+		//Checking the file for the information
+		Assert.assertTrue(HasInformationLoggedIntoTheFile(Level.SEVERE));
 		
 		//Asserting that the level recorded is the same
 		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.SEVERE.intValue());		
@@ -293,6 +291,9 @@ public class LoggerTests {
 		/*******************************************Information Message *************************************/
 		//Executing the log process
 		JobLogger.LogMessage("This an info message", true, false, false, LevelOfMessage.MESSAGE, dbParams);
+		
+		//Checking the file for the information
+		Assert.assertTrue(HasInformationLoggedIntoTheFile(Level.INFO));
 				
 		//Asserting that the level recorded is the same
 		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.INFO.intValue());		
@@ -304,6 +305,32 @@ public class LoggerTests {
 		
 		//Removing the handler to avoid memory leak
 		logger.removeHandler(handler);
+	}
+	
+	/**
+	 * Method to validate that the information recently saved in the file has been inserted correctly
+	 * @param level The level of the message we have inserted
+	 * @return true if we found it in the file otherwise false
+	 * @throws FileNotFoundException In case we haven't found the file
+	 */
+	private boolean HasInformationLoggedIntoTheFile(Level level) throws FileNotFoundException
+	{
+		//Getting the file after creating it the first time
+		File logFile = new File(System.getProperty("user.home") + "/logFile.txt");
+		boolean found = false;
+		
+		//Checking if the information has been inserted
+		Scanner scanner = new Scanner(logFile);
+	    while (scanner.hasNextLine()) {
+	        String line = scanner.nextLine();
+	        if(line.contains(level.getName()))
+	        {
+	            found = true;
+	            break;
+	        }
+	    }	    
+	    scanner.close();	    
+	    return found;
 	}
 	
 	/**
