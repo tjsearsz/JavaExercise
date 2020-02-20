@@ -433,6 +433,184 @@ public class LoggerTests {
 	}
 	
 	/**
+	 * Unit test to verify that the database parameters cannot be anything except a variable that can be treated as a string
+	 */
+	@Test	
+	public void DataBaseParametersCanOnlyBeStringRelatedTypeTest()
+	{	
+		//Trying to use a non string as a file path
+		final Map<String, Object> dbParams1 = new HashMap<String, Object>();
+		dbParams1.put("userName", new Exception());
+		dbParams1.put("password", "information");
+		dbParams1.put("dbms", "information");
+		dbParams1.put("serverName", "information");
+		dbParams1.put("portNumber", "information");		
+		
+		//Asserting that an error is thrown
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams1.put("userName", "information");
+		dbParams1.put("password", new Exception());
+		dbParams1.put("dbms", "information");
+		dbParams1.put("serverName", "information");
+		dbParams1.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams1.put("userName", "information");
+		dbParams1.put("password", "information");
+		dbParams1.put("dbms", new Exception());
+		dbParams1.put("serverName", "information");
+		dbParams1.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams1.put("userName", "information");
+		dbParams1.put("password", "information");
+		dbParams1.put("dbms", "information");
+		dbParams1.put("serverName", new Exception());
+		dbParams1.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams1.put("userName", "information");
+		dbParams1.put("password", "information");
+		dbParams1.put("dbms", "information");
+		dbParams1.put("serverName", "information");
+		dbParams1.put("portNumber", new Exception());	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		//Trying to use a non string as a file path
+		final Map<String, Object> dbParams2 = new HashMap<String, Object>();
+		dbParams2.put("userName", 1);
+		dbParams2.put("password", "information");
+		dbParams2.put("dbms", "information");
+		dbParams2.put("serverName", "information");
+		dbParams2.put("portNumber", "information");		
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams2.put("userName", "information");
+		dbParams2.put("password", 1);
+		dbParams2.put("dbms", "information");
+		dbParams2.put("serverName", "information");
+		dbParams2.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams2.put("userName", "information");
+		dbParams2.put("password", "information");
+		dbParams2.put("dbms", 1);
+		dbParams2.put("serverName", "information");
+		dbParams2.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams2.put("userName", "information");
+		dbParams2.put("password", "information");
+		dbParams2.put("dbms", "information");
+		dbParams2.put("serverName", 1);
+		dbParams2.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams2.put("userName", "information");
+		dbParams2.put("password", "information");
+		dbParams2.put("dbms", "information");
+		dbParams2.put("serverName", "information");
+		dbParams2.put("portNumber", 1);	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));		
+				
+		//Trying to use a non string as a file path
+		final Map<String, Object> dbParams3 = new HashMap<String, Object>();				
+		dbParams3.put("userName", true);
+		dbParams3.put("password", "information");
+		dbParams3.put("dbms", "information");
+		dbParams3.put("serverName", "information");
+		dbParams3.put("portNumber", "information");		
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams3.put("userName", "information");
+		dbParams3.put("password", true);
+		dbParams3.put("dbms", "information");
+		dbParams3.put("serverName", "information");
+		dbParams3.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams3.put("userName", "information");
+		dbParams3.put("password", "information");
+		dbParams3.put("dbms", true);
+		dbParams3.put("serverName", "information");
+		dbParams3.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams3.put("userName", "information");
+		dbParams3.put("password", "information");
+		dbParams3.put("dbms", "information");
+		dbParams3.put("serverName", true);
+		dbParams3.put("portNumber", "information");	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));
+		
+		dbParams3.put("userName", "information");
+		dbParams3.put("password", "information");
+		dbParams3.put("dbms", "information");
+		dbParams3.put("serverName", "information");
+		dbParams3.put("portNumber", true);	
+		
+		//Asserting that an error is thrown
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("Database parameters must be valid data"));		
+	}
+	
+	/**
 	 * Method to clean anything required
 	 */
 	@AfterClass

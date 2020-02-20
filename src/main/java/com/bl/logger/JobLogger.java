@@ -219,7 +219,7 @@ public class JobLogger {
 			if ((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
 				 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
 				 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
-				 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
+				 (dbParams.containsKey("serverName")&& dbParams.get("serverName")!= null) &&
 				 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null))
 			{
 				//Validating the value of the parameters can be casted to a string (cannot be a class or any other thing)
