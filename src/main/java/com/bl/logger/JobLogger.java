@@ -269,7 +269,8 @@ public class JobLogger {
 					catch (SQLException e)
 					{
 						//If an error on the DB happens we will catch it
-						throw new LoggerException("An error on the database has occurred", e);
+						throw new LoggerException("Cannot create database connection or perform DML instruction, "
+								+ "Please check your Data Base parameters", e);
 					}
 				}
 				else

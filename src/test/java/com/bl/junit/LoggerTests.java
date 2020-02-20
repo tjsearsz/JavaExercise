@@ -232,7 +232,7 @@ public class LoggerTests {
 	@Test
 	public void LogAllTypesOfMessagesIntoAfileTest() throws LoggerException, FileNotFoundException
 	{
-		//Using an real filepath
+		//Using a real filepath
 		final Map<String, String> dbParams = new HashMap<String, String>();
 		dbParams.put("logFileFolder", System.getProperty("user.home"));
 		
@@ -615,8 +615,17 @@ public class LoggerTests {
 	 * @throws LoggerException
 	 */
 	@Test
+	@Ignore
 	public void LogAllTypesOfMessagesIntoDataBaseTest() throws LoggerException
 	{
+		//Using real data base parameters
+		final Map<String, String> dbParams = new HashMap<String, String>();
+		dbParams.put("userName", "information");
+		dbParams.put("password", "information");
+		dbParams.put("dbms", "information");
+		dbParams.put("serverName", "information");
+		dbParams.put("portNumber", "information");
+		
 		//Getting the logger
 		Logger logger = Logger.getLogger("MyLog");
 		
@@ -668,6 +677,27 @@ public class LoggerTests {
 		
 		//Removing the handler to avoid memory leak
 		logger.removeHandler(handler);
+	}
+	
+	/**
+	 * Unit test to verify that the logger handles a SQL error due to invalid Data base parameters
+	 */
+	@Test
+	public void HandlingUnsuccessfulConnectionDueToInvalidDBParamsTest()
+	{
+		//Trying to use a non string as a file path
+		final Map<String, String> dbParams = new HashMap<String, String>();
+		dbParams.put("userName", "information");
+		dbParams.put("password", "information");
+		dbParams.put("dbms", "information");
+		dbParams.put("serverName", "information");
+		dbParams.put("portNumber", "information");
+		
+		//Asserting that an error is thrown
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams));
+		Assert.assertTrue(exception.getMessage().equals("Cannot create database connection or perform DML instruction, "
+				+ "Please check your Data Base parameters"));
 	}
 	
 	/**
