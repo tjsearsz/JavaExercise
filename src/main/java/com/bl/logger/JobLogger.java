@@ -219,15 +219,13 @@ public class JobLogger {
 			if ((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
 				 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
 				 (dbParams.containsKey("dbms")      && dbParams.get("dbms")      != null) &&
-				 (dbParams.containsKey("serverName")&& dbParams.get("serverName")!= null) &&
-				 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null))
+				 (dbParams.containsKey("serverName")&& dbParams.get("serverName")!= null))
 			{
 				//Validating the value of the parameters can be casted to a string (cannot be a class or any other thing)
 				if (dbParams.get("userName") instanceof String &&
 					dbParams.get("password") instanceof String &&
 					dbParams.get("dbms") instanceof String &&
-					dbParams.get("serverName") instanceof String &&
-					dbParams.get("portNumber") instanceof String)
+					dbParams.get("serverName") instanceof String)
 				{
 					Connection connection = null;
 					Properties connectionProps = new Properties();
@@ -238,8 +236,8 @@ public class JobLogger {
 						connectionProps.put("password", dbParams.get("password"));
 			
 						//Creating a connection with the credentials given
-						connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + "://" + dbParams.get("serverName")
-								+ ":" + dbParams.get("portNumber") + "/", connectionProps);
+						connection = DriverManager.getConnection("jdbc:" + dbParams.get("dbms") + ":" + dbParams.get("serverName")
+								+ "/test.db", connectionProps);
 						
 						//Depending on the type of the message we will insert in database, it will have a code
 						char typeOfMessage = 0;

@@ -614,17 +614,15 @@ public class LoggerTests {
 	 * Unit test to verify that every type of message can be logged into the DataBase
 	 * @throws LoggerException
 	 */
-	@Test
-	@Ignore
+	@Test	
 	public void LogAllTypesOfMessagesIntoDataBaseTest() throws LoggerException
 	{
 		//Using real data base parameters
 		final Map<String, String> dbParams = new HashMap<String, String>();
-		dbParams.put("userName", "information");
-		dbParams.put("password", "information");
-		dbParams.put("dbms", "information");
-		dbParams.put("serverName", "information");
-		dbParams.put("portNumber", "information");
+		dbParams.put("userName", "username");
+		dbParams.put("password", "dragon");
+		dbParams.put("dbms", "h2");
+		dbParams.put("serverName", System.getProperty("user.home"));		
 		
 		//Getting the logger
 		Logger logger = Logger.getLogger("MyLog");
@@ -643,7 +641,7 @@ public class LoggerTests {
 		
 		/*******************************************Warning Message ****************************************/
 		//Executing the log process
-		JobLogger.LogMessage("This a warning message", false, false, true, LevelOfMessage.WARNING, null);		
+		JobLogger.LogMessage("This a warning message", false, false, true, LevelOfMessage.WARNING, dbParams);		
 		
 		//Asserting that the level recorded is the same
 		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.WARNING.intValue());
@@ -654,7 +652,7 @@ public class LoggerTests {
 		/****************************************************************************************************/
 		/********************************************Error Message ******************************************/
 		//Executing the log process
-		JobLogger.LogMessage("This an error message", false, false, true, LevelOfMessage.ERROR, null);		
+		JobLogger.LogMessage("This an error message", false, false, true, LevelOfMessage.ERROR, dbParams);		
 		
 		//Asserting that the level recorded is the same
 		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.SEVERE.intValue());		
@@ -665,7 +663,7 @@ public class LoggerTests {
 		/****************************************************************************************************/
 		/*******************************************Information Message *************************************/
 		//Executing the log process
-		JobLogger.LogMessage("This an info message", false, false, true, LevelOfMessage.MESSAGE, null);		
+		JobLogger.LogMessage("This an info message", false, false, true, LevelOfMessage.MESSAGE, dbParams);		
 		
 		//Asserting that the level recorded is the same
 		Assert.assertTrue(handler.getLevelRecorded().intValue() == Level.INFO.intValue());		
