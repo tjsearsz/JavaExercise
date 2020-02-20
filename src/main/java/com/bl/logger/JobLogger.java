@@ -215,9 +215,6 @@ public class JobLogger {
 		//Validating database parameters doesn't come null
 		if (dbParams != null)
 		{
-			Connection connection = null;
-			Properties connectionProps = new Properties();
-			
 			//If we have all the required parameters for the database, we can open a connection
 			if ((dbParams.containsKey("userName")  && dbParams.get("userName")  != null) && 
 				 (dbParams.containsKey("password")  && dbParams.get("password")  != null) &&
@@ -225,9 +222,15 @@ public class JobLogger {
 				 (dbParams.containsKey("serverName")&& dbParams.get("servername")!= null) &&
 				 (dbParams.containsKey("portNumber")&& dbParams.get("portNumber")!= null))
 			{
-				//Validating the value of the path can be casted to a string (cannot be a class or any other thing)
-				if (dbParams.get("logFileFolder") instanceof String)
-				{					
+				//Validating the value of the parameters can be casted to a string (cannot be a class or any other thing)
+				if (dbParams.get("userName") instanceof String &&
+					dbParams.get("password") instanceof String &&
+					dbParams.get("dbms") instanceof String &&
+					dbParams.get("serverName") instanceof String &&
+					dbParams.get("portNumber") instanceof String)
+				{
+					Connection connection = null;
+					Properties connectionProps = new Properties();
 					try
 					{
 						//Placing the credentials for the connection
@@ -269,6 +272,8 @@ public class JobLogger {
 						throw new LoggerException("An error on the database has occurred", e);
 					}
 				}
+				else
+					throw new LoggerException("Database parameters must be valid data");
 			}
 			else
 				throw new LoggerException("Not all the required database parameters have been specified");

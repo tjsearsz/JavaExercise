@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -129,19 +130,7 @@ public class LoggerTests {
 		
 		//Removing the handler to avoid memory leak
 		logger.removeHandler(handler);
-	}
-	
-	/**
-	 * Unit test to verify that every type of message can be logged in the console
-	 * @throws LoggerException
-	 */
-	@Test
-	@Ignore
-	public void LogAllTypesOfMessagesIntoTheFileTest() throws LoggerException
-	{
-		
 	}	
-	
 	
 	/**
 	 * Unit test to verify that the DbParam for logging in the file cannot be null
@@ -243,7 +232,7 @@ public class LoggerTests {
 	@Test
 	public void LogAllTypesOfMessagesIntoAfileTest() throws LoggerException, FileNotFoundException
 	{
-		//Using an existant filepath
+		//Using an real filepath
 		final Map<String, String> dbParams = new HashMap<String, String>();
 		dbParams.put("logFileFolder", System.getProperty("user.home"));
 		
@@ -309,5 +298,149 @@ public class LoggerTests {
 		
 		//Removing the handler to avoid memory leak
 		logger.removeHandler(handler);
+	}
+	
+	/**
+	 * Unit test to verify that the DbParam for logging in the database cannot be null
+	 */
+	@Test	
+	public void DataBaseParametersCannotBeNullTest()
+	{		
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, null));
+		Assert.assertTrue(exception.getMessage().equals("DataBase parameters cannot be blank"));				
+		
+	}
+	
+	/**
+	 * Unit test to verify that all the required Database parameters must be specified
+	 */
+	@Test
+	public void AllDataBaseParametersMustBeSpecifiedTest()
+	{
+		//Preparing all the cases
+		final Map<String, String> dbParams = new HashMap<String, String>();
+		final Map<String, String> dbParams1 = new HashMap<String, String>();
+		dbParams1.put("userName", null);
+		dbParams1.put("password", "information");
+		dbParams1.put("dbms", "information");
+		dbParams1.put("serverName", "information");
+		dbParams1.put("portNumber", "information");
+		final Map<String, String> dbParams2 = new HashMap<String, String>();
+		dbParams2.put("userName", "information");
+		dbParams2.put("password", null);
+		dbParams2.put("dbms", "information");
+		dbParams2.put("serverName", "information");
+		dbParams2.put("portNumber", "information");
+		final Map<String, String> dbParams3 = new HashMap<String, String>();
+		dbParams3.put("userName", "information");
+		dbParams3.put("password", "information");
+		dbParams3.put("dbms", null);
+		dbParams3.put("serverName", "information");
+		dbParams3.put("portNumber", "information");
+		final Map<String, String> dbParams4 = new HashMap<String, String>();
+		dbParams4.put("userName", "information");
+		dbParams4.put("password", "information");
+		dbParams4.put("dbms", "information");
+		dbParams4.put("serverName", null);
+		dbParams4.put("portNumber", "information");
+		final Map<String, String> dbParams5 = new HashMap<String, String>();
+		dbParams5.put("userName", "information");
+		dbParams5.put("password", "information");
+		dbParams5.put("dbms", "information");
+		dbParams5.put("serverName", "information");
+		dbParams5.put("portNumber", null);
+		final Map<String, String> dbParams6 = new HashMap<String, String>();		
+		dbParams6.put("password", "information");
+		dbParams6.put("dbms", "information");
+		dbParams6.put("serverName", "information");
+		dbParams6.put("portNumber", "information");
+		final Map<String, String> dbParams7 = new HashMap<String, String>();
+		dbParams7.put("userName", "information");		
+		dbParams7.put("dbms", "information");
+		dbParams7.put("serverName", "information");
+		dbParams7.put("portNumber", "information");
+		final Map<String, String> dbParams8 = new HashMap<String, String>();
+		dbParams8.put("userName", "information");
+		dbParams8.put("password", "information");		
+		dbParams8.put("serverName", "information");
+		dbParams8.put("portNumber", "information");
+		final Map<String, String> dbParams9 = new HashMap<String, String>();
+		dbParams9.put("userName", "information");
+		dbParams9.put("password", "information");
+		dbParams9.put("dbms", "information");		
+		dbParams9.put("portNumber", "information");
+		final Map<String, String> dbParams10 = new HashMap<String, String>();
+		dbParams10.put("userName", "information");
+		dbParams10.put("password", "information");
+		dbParams10.put("dbms", "information");
+		dbParams10.put("serverName", "information");		
+		
+		//Asserting logFileFolder value must exist
+		LoggerException exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));		
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams1));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams2));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+				
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams3));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+				
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams4));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams5));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams6));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams7));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams8));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams9));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+		
+		//Asserting logFileFolder cannot be null		
+		exception = Assert.assertThrows(LoggerException.class, 
+				() -> JobLogger.LogMessage("This is a message", false, false, true, LevelOfMessage.WARNING, dbParams10));
+		Assert.assertTrue(exception.getMessage().equals("Not all the required database parameters have been specified"));
+	}
+	
+	/**
+	 * Method to clean anything required
+	 */
+	@AfterClass
+	public static void TearDown()
+	{
+		//File path
+		File logFile = new File(System.getProperty("user.home") + "/logFile.txt");
+		if(logFile.exists())
+			logFile.delete();
 	}
 }
